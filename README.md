@@ -2,6 +2,11 @@
 
 Application is developed using NestJS framework and additionally configured swaggerUI package to test APIs and Posgresql client library for the DB access for nestjs.
 
+## Clone Code
+
+#git clone git@github.com:devansdev/course-manager.git
+#git checkout master
+
 ## Running the app
 
 ```bash
@@ -25,6 +30,8 @@ $RUN_MIGRATIONS=true
 # development
 $ npm run start
 ```
+
+After running use this http://localhost:3000/doc to execute APIs
 
 ## Test
 
