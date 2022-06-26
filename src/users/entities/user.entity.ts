@@ -1,12 +1,5 @@
-import { IsEmail } from 'class-validator';
 import { Lecture } from 'src/lectures/entities/lecture.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('users')
 export class User {

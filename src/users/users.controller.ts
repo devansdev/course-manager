@@ -11,21 +11,25 @@ export class UsersController {
 
   @Post('register')
   create(@Body() createUserDto: CreateUserDto) {
+    // creates users and link students to lecturers
     this.usersService.create(createUserDto);
   }
 
   @Post('suspend')
   suspend(@Body() suspendUserDto: SuspendUserDto) {
+    // Suspend students
     return this.usersService.suspend(suspendUserDto);
   }
 
   @Post('retrievefornotifications')
   retriveForNotification(@Body() notificationDto: NotificationDto) {
+    // Retive list of students for notification
     return this.usersService.retriveForNotification(notificationDto);
   }
 
   @Get('commonstudents')
   filterUsers(@Query() filterUserDto: FilterUserDto) {
+    // load common students
     return this.usersService.filter(filterUserDto);
   }
 }

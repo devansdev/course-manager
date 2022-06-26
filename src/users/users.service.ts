@@ -19,6 +19,8 @@ export class UsersService {
     private userRepository: Repository<User>,
     private lectureService: LecturesService,
   ) {}
+
+  //create students, lectures and assign students to lecture
   async create(createUserDto: CreateUserDto) {
     // creates lecturer if not in the database
     const existingLecturer: User = await this.userRepository.findOne({
@@ -38,7 +40,7 @@ export class UsersService {
         });
     }
 
-    // creates students if not in databse
+    // creates students if not in databse with if not saved
     const existingStudents: User[] = await this.userRepository.find({
       where: {
         email: In(createUserDto.students),
@@ -57,6 +59,8 @@ export class UsersService {
         throw new BadRequestException('Student email validation failed!');
       }
     });
+
+    // create students
     await this.userRepository
       .save(
         insertingStudents.map((student: string) => ({
@@ -74,6 +78,7 @@ export class UsersService {
       },
     });
 
+    // create lectures for the students
     this.lectureService.createLectures(
       students.map((student: User) => ({
         id: uuidv4(),
@@ -84,9 +89,12 @@ export class UsersService {
     );
   }
 
+  // filter students
   async filter(filterUserDto: FilterUserDto) {
+    // validate array of emails
     let emailValidation = true;
     let lecturers: User[] = [];
+
     if (isArray(filterUserDto.lecturer)) {
       filterUserDto.lecturer.map((lecturer: string) => {
         if (!isEmail(lecturer)) {
@@ -117,9 +125,39 @@ export class UsersService {
       lecturers.map((lecturer: User) => lecturer.id),
     );
 
+    // this list contains all the students in the lecture need to filter out common students
+    const studentIds: string[] = lectures.map(
+      (lecture: Lecture) => lecture.studentId,
+    );
+    const studentLectures: any = {};
+    for (const studentId of studentIds) {
+      for (const lecture of lectures) {
+        if (lecture.studentId === studentId) {
+          if (studentLectures[studentId] !== undefined) {
+            studentLectures[studentId].push(lecture.lectureId);
+          } else {
+            studentLectures[studentId] = [lecture.lectureId];
+          }
+        }
+      }
+    }
+
+    // filter out common students
+    const commonStudentIds: string[] = Object.keys(studentLectures).filter(
+      (studentId: string) => {
+        return (
+          studentLectures[studentId].filter(
+            (lecId: string) =>
+              lecturers.map((lecturer: User) => lecturer.id).indexOf(lecId) ===
+              -1,
+          ).length === 0
+        );
+      },
+    );
+
     const users: User[] = await this.userRepository.find({
       where: {
-        id: In(lectures.map((lecture: Lecture) => lecture.studentId)),
+        id: In(commonStudentIds),
         type: UserType.STUDENT,
       },
       select: ['email'],
@@ -128,6 +166,7 @@ export class UsersService {
     return users.map((user: User) => user.email);
   }
 
+  // retrive students for notifications
   async retriveForNotification(notificationDto: NotificationDto) {
     const lecturer: User = await this.userRepository.findOne({
       where: {
@@ -188,6 +227,7 @@ export class UsersService {
     return notificationStudents.map((student: User) => student.email);
   }
 
+  // suspend students
   async suspend(suspendUserDto: SuspendUserDto) {
     const users: User[] = await this.userRepository.find({
       where: {
