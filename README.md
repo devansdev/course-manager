@@ -5,6 +5,23 @@ Application is developed using NestJS framework and additionally configured swag
 ## Running the app
 
 ```bash
+
+#install
+$ npm install
+
+Please configure following databse values in .env file:
+
+$POSTGRES_HOST=127.0.0.1
+$POSTGRES_PORT=5432
+$POSTGRES_USER=postgres
+$POSTGRES_PASSWORD=1234
+$POSTGRES_DATABASE=node_assignment
+$POSTGRES_SYNC=true
+$PORT=3001
+$MODE=DEV
+$RUN_MIGRATIONS=true
+
+
 # development
 $ npm run start
 ```
